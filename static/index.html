@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prediksi Tingkat Obesitas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F6F3EC;
+    --surface:#FFFFFF;
+    --border:#E7E1D2;
+    --ink:#202922;
+    --ink-soft:#6B7268;
+    --accent:#1B4B43;
+    --accent-dark:#123733;
+    --accent-soft:#DEEAE3;
+    --scale-1:#5B8AA6;
+    --scale-2:#5E9B79;
+    --scale-3:#C7AE52;
+    --scale-4:#D98E4A;
+    --scale-5:#C8693F;
+    --scale-6:#B14F3C;
+    --scale-7:#823535;
+    --radius:14px;
+    --shadow:0 1px 2px rgba(32,41,34,.04), 0 8px 24px -12px rgba(32,41,34,.10);
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:'Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased;}
+  h1,h2{font-family:'Sora',sans-serif;margin:0;}
+  .page{max-width:720px;margin:0 auto;padding:2.5rem 1.25rem 4rem;}
+
+  /* ---------- Hero ---------- */
+  .hero{margin-bottom:1.75rem;}
+  .eyebrow{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--accent);background:var(--accent-soft);padding:5px 12px;border-radius:999px;}
+  .hero h1{font-size:30px;font-weight:700;margin-top:14px;color:var(--accent-dark);letter-spacing:-.01em;}
+  .lede{font-size:14.5px;line-height:1.55;color:var(--ink-soft);margin-top:8px;max-width:560px;}
+  #model-badge{display:none;align-items:center;gap:6px;font-size:12px;color:var(--ink-soft);margin-top:12px;}
+  #model-badge .pulse{width:7px;height:7px;border-radius:50%;background:#5E9B79;display:inline-block;box-shadow:0 0 0 0 rgba(94,155,121,.5);animation:pulse 2s infinite;}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(94,155,121,.45);}70%{box-shadow:0 0 0 6px rgba(94,155,121,0);}100%{box-shadow:0 0 0 0 rgba(94,155,121,0);}}
+
+  /* ---------- Cards ---------- */
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:1.5rem;margin-bottom:1.1rem;}
+  .card-head{display:flex;align-items:center;gap:10px;margin-bottom:1.25rem;}
+  .card-head .icon{width:20px;height:20px;color:var(--accent);flex:none;}
+  .card-head h2{font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fit, minmax(190px, 1fr));gap:14px 16px;}
+  .field{display:flex;flex-direction:column;gap:6px;}
+  .field label{font-size:13px;font-weight:500;color:var(--ink);display:flex;justify-content:space-between;align-items:baseline;gap:8px;}
+  .value-badge{font-size:11.5px;font-weight:700;color:var(--accent);background:var(--accent-soft);padding:1px 8px;border-radius:999px;}
+
+  input[type=number], input[type=text], select{
+    padding:9px 11px;border:1px solid var(--border);border-radius:10px;font-size:14px;font-family:inherit;color:var(--ink);background:#fff;transition:border-color .15s, box-shadow .15s;
+  }
+  select{appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%236B7268'><path d='M5.5 7.5l4.5 4.5 4.5-4.5'/></svg>");background-repeat:no-repeat;background-position:right 10px center;padding-right:30px;}
+  input:focus, select:focus, input[type=range]:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft);}
+  input:focus-visible, select:focus-visible{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft);}
+
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:999px;background:var(--border);margin:8px 0 2px;}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--accent);border:3px solid #fff;box-shadow:0 0 0 1px var(--border);cursor:pointer;margin-top:-1px;}
+  input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--accent);border:3px solid #fff;box-shadow:0 0 0 1px var(--border);cursor:pointer;}
+  input[type=range]:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 4px var(--accent-soft);}
+
+  .hint{font-size:11.5px;color:var(--ink-soft);line-height:1.3;min-height:14px;}
+  .section-divider{margin:1.4rem 0 1rem;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);}
+
+  /* ---------- BMI live preview ---------- */
+  .bmi-preview{margin-top:1.4rem;padding-top:1.2rem;border-top:1px dashed var(--border);}
+  .bmi-preview-text{font-size:13.5px;color:var(--ink-soft);margin-bottom:10px;}
+  .bmi-preview-text strong{color:var(--ink);font-size:15px;}
+
+  /* ---------- Button ---------- */
+  .btn{width:100%;padding:14px;background:var(--accent);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:600;font-family:inherit;cursor:pointer;transition:background .15s, transform .1s;display:flex;align-items:center;justify-content:center;gap:8px;}
+  .btn:hover{background:var(--accent-dark);}
+  .btn:active{transform:scale(.99);}
+  .btn:focus-visible{outline:3px solid var(--accent-soft);outline-offset:2px;}
+  .btn svg{width:16px;height:16px;}
+
+  .loading{display:none;align-items:center;justify-content:center;gap:8px;color:var(--ink-soft);font-size:13.5px;padding:1rem 0 0;}
+  .loading.show{display:flex;}
+  .spinner{width:14px;height:14px;border-radius:50%;border:2px solid var(--accent-soft);border-top-color:var(--accent);animation:spin .7s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  /* ---------- Result ---------- */
+  #result{display:none;opacity:0;transform:translateY(10px);transition:opacity .4s ease, transform .4s ease;}
+  #result.show{display:block;opacity:1;transform:translateY(0);}
+  .result-title{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:6px;}
+  .result-value{font-size:26px;font-weight:700;font-family:'Sora',sans-serif;color:var(--accent-dark);margin-bottom:1.3rem;}
+
+  .gauge-wrap{margin-bottom:1.4rem;}
+  .gauge-legend{font-size:11.5px;color:var(--ink-soft);margin-bottom:8px;display:flex;justify-content:space-between;}
+  .gauge{position:relative;padding-top:18px;}
+  .gauge-track{display:flex;border-radius:8px;overflow:hidden;height:38px;}
+  .seg{flex:1;display:flex;align-items:center;justify-content:center;padding:0 2px;}
+  .seg span{font-size:8.6px;font-weight:700;color:rgba(255,255,255,.95);text-align:center;line-height:1.15;text-shadow:0 1px 2px rgba(0,0,0,.2);}
+  .marker{position:absolute;top:0;transform:translateX(-50%);font-size:13px;line-height:1;}
+  .marker.model{color:var(--accent-dark);}
+  .marker.bmi{color:var(--ink-soft);top:2px;}
+  .gauge-keys{display:flex;gap:18px;margin-top:8px;font-size:11.5px;color:var(--ink-soft);}
+  .gauge-keys span{display:flex;align-items:center;gap:5px;}
+
+  .bmi-compare{background:var(--accent-soft);border-radius:10px;padding:11px 13px;font-size:13px;color:var(--accent-dark);line-height:1.5;margin-bottom:1.3rem;}
+
+  .proba-title{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:10px;}
+  .bar-row{margin:9px 0;}
+  .bar-label{display:flex;justify-content:space-between;font-size:12.5px;color:var(--ink);margin-bottom:4px;}
+  .bar-label .pct{color:var(--ink-soft);font-weight:600;}
+  .bar-track{height:7px;background:var(--border);border-radius:4px;overflow:hidden;}
+  .bar-fill{height:100%;border-radius:4px;background:var(--accent);transition:width .5s ease;}
+
+  footer{text-align:center;font-size:11.5px;color:var(--ink-soft);margin-top:1.5rem;line-height:1.6;}
+
+  /* ---------- ERROR BANNER (cantik) ---------- */
+  .error-banner{display:none;border-radius:var(--radius);margin-top:1rem;overflow:hidden;animation:slideIn .3s ease;}
+  .error-banner.show{display:block;}
+  @keyframes slideIn{from{opacity:0;transform:translateY(-8px);}to{opacity:1;transform:translateY(0);}}
+  .error-inner{background:#FEF3F2;border:1.5px solid #FDA29B;padding:0;}
+  .error-header{background:#FEE4E2;padding:12px 16px;display:flex;align-items:center;gap:10px;}
+  .error-icon{width:36px;height:36px;border-radius:50%;background:#FEE4E2;border:1.5px solid #FDA29B;display:flex;align-items:center;justify-content:center;flex:none;}
+  .error-icon svg{width:18px;height:18px;color:#D92D20;}
+  .error-title-wrap{flex:1;}
+  .error-title{font-size:13.5px;font-weight:700;color:#7A271A;margin:0 0 2px;}
+  .error-subtitle{font-size:11.5px;color:#B42318;margin:0;}
+  .error-body{padding:14px 16px;}
+  .error-message{font-size:13px;color:#7A271A;line-height:1.55;margin:0 0 12px;}
+  .error-tips{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:7px;}
+  .error-tips li{display:flex;align-items:flex-start;gap:8px;font-size:12.5px;color:#B42318;line-height:1.45;}
+  .error-tips li::before{content:"→";font-weight:700;flex:none;margin-top:1px;}
+  .error-dismiss{display:flex;align-items:center;justify-content:flex-end;padding:10px 16px 12px;border-top:1px solid #FDA29B;}
+  .error-dismiss button{background:none;border:1.5px solid #B42318;color:#7A271A;font-size:12px;font-weight:600;font-family:inherit;border-radius:8px;padding:6px 14px;cursor:pointer;transition:background .15s;}
+  .error-dismiss button:hover{background:#FEE4E2;}
+
+  /* ---------- VALIDATION ERROR (field level) ---------- */
+  .field-error{display:none;font-size:11.5px;color:#B42318;margin-top:3px;font-weight:500;}
+  .field-error.show{display:block;}
+  input.invalid, select.invalid{border-color:#FDA29B !important;box-shadow:0 0 0 3px rgba(253,162,155,.2) !important;}
+
+  /* ---------- SARAN KESEHATAN ---------- */
+  .saran-section{margin-top:1.4rem;padding-top:1.2rem;border-top:1px dashed var(--border);}
+  .saran-title{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:12px;display:flex;align-items:center;gap:6px;}
+  .saran-title svg{width:14px;height:14px;color:var(--accent);}
+  .saran-grid{display:flex;flex-direction:column;gap:10px;}
+  .saran-item{display:flex;align-items:flex-start;gap:12px;padding:12px 14px;border-radius:10px;background:#f9faf8;}
+  .saran-item.positive{background:#EDFAF2;border:1px solid #A6E3BE;}
+  .saran-item.warning{background:#FFF8EC;border:1px solid #F5C980;}
+  .saran-item.danger{background:#FFF1F0;border:1px solid #FFBFBA;}
+  .saran-emoji{font-size:20px;flex:none;margin-top:1px;}
+  .saran-text{flex:1;}
+  .saran-label{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px;}
+  .saran-item.positive .saran-label{color:#1A6B3C;}
+  .saran-item.warning .saran-label{color:#8A5A00;}
+  .saran-item.danger .saran-label{color:#921A18;}
+  .saran-desc{font-size:13px;line-height:1.55;color:var(--ink);}
+  .disclaimer-saran{margin-top:12px;font-size:11.5px;color:var(--ink-soft);background:var(--bg);border-radius:8px;padding:10px 12px;line-height:1.5;}
+  .disclaimer-saran strong{color:var(--ink);}
+
+  .btn:disabled{opacity:.6;cursor:not-allowed;}
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:.001ms !important;transition-duration:.001ms !important;}
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="hero">
+    <span class="eyebrow">Model Machine Learning &middot; UAS Pembelajaran Mesin, UDINUS</span>
+    <h1>Prediksi Tingkat Obesitas</h1>
+    <p class="lede">Isi data fisik, kebiasaan makan, dan gaya hidup Anda. Model memperkirakan kategori berat badan dengan mempertimbangkan kombinasi faktor&#8209;faktor tersebut, bukan hanya dari tinggi dan berat badan saja.</p>
+    <div id="model-badge"><span class="pulse"></span><span id="model-badge-text">Menghubungkan ke model&hellip;</span></div>
+  </header>
+
+  <!-- ===================== DATA FISIK ===================== -->
+  <section class="card">
+    <div class="card-head">
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 16 16 3l5 5L8 21l-5-5z"/><path d="M13 6l2 2M9 10l2 2M5 14l2 2"/></svg>
+      <h2>Data Fisik</h2>
+    </div>
+    <div class="grid">
+      <div class="field"><label>Jenis Kelamin</label>
+        <select id="gender"><option value="Female">Female</option><option value="Male">Male</option></select></div>
+      <div class="field">
+        <label>Usia (tahun)</label>
+        <input type="number" id="age" value="25" min="10" max="100" oninput="updateBmiPreview(); validateField('age')">
+        <span class="field-error" id="age-err">Usia harus antara 10–100 tahun.</span>
+      </div>
+      <div class="field">
+        <label>Tinggi (meter)</label>
+        <input type="number" id="height" value="1.65" step="0.01" min="1.0" max="2.5" oninput="updateBmiPreview(); validateField('height')">
+        <span class="field-error" id="height-err">Tinggi harus antara 1.0–2.5 meter.</span>
+      </div>
+      <div class="field">
+        <label>Berat (kg)</label>
+        <input type="number" id="weight" value="70" step="0.1" min="10" max="400" oninput="updateBmiPreview(); validateField('weight')">
+        <span class="field-error" id="weight-err">Berat harus antara 10–400 kg. Jika melebihi 400 kg, silakan konsultasikan langsung ke dokter.</span>
+      </div>
+    </div>
+
+    <div class="bmi-preview" id="bmiPreview" style="display:none">
+      <div class="bmi-preview-text">BMI Anda saat ini: <strong id="bmiValue">&mdash;</strong> kg/m&sup2; &mdash; <span id="bmiLabel">&mdash;</span></div>
+      <div id="bmiGauge"></div>
+    </div>
+  </section>
+
+  <!-- ===================== KEBIASAAN MAKAN ===================== -->
+  <section class="card">
+    <div class="card-head">
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3v7a2 2 0 0 0 4 0V3M8 10v11M17 3c-1.6 0-3 1.6-3 4s1.4 4 3 4 3-1.6 3-4-1.4-4-3-4zM17 11v10"/></svg>
+      <h2>Kebiasaan Makan</h2>
+    </div>
+    <div class="grid">
+      <div class="field"><label>Riwayat keluarga overweight</label>
+        <select id="family"><option value="yes">Ya</option><option value="no">Tidak</option></select></div>
+      <div class="field"><label>Sering makan makanan berkalori tinggi</label>
+        <select id="favc"><option value="yes">Sering</option><option value="no">Jarang</option></select></div>
+      <div class="field"><label>Makan di luar jam makan</label>
+        <select id="caec">
+          <option value="no">Tidak pernah</option><option value="Sometimes" selected>Kadang-kadang</option>
+          <option value="Frequently">Sering</option><option value="Always">Selalu</option></select></div>
+      <div class="field"><label>Konsumsi alkohol</label>
+        <select id="calc">
+          <option value="no">Tidak pernah</option><option value="Sometimes" selected>Kadang-kadang</option>
+          <option value="Frequently">Sering</option><option value="Always">Selalu</option></select></div>
+    </div>
+
+    <div class="section-divider">Frekuensi &amp; Pola</div>
+    <div class="grid">
+      <div class="field"><label>Makan sayur <span class="value-badge" id="fcvc-val">2</span></label>
+        <input type="range" id="fcvc" min="1" max="3" step="1" value="2" oninput="updateHint('fcvc')">
+        <div class="hint" id="fcvc-hint"></div></div>
+      <div class="field"><label>Makan besar / hari <span class="value-badge" id="ncp-val">3</span></label>
+        <input type="range" id="ncp" min="1" max="4" step="1" value="3" oninput="updateHint('ncp')">
+        <div class="hint" id="ncp-hint"></div></div>
+    </div>
+  </section>
+
+  <!-- ===================== GAYA HIDUP ===================== -->
+  <section class="card">
+    <div class="card-head">
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l2 7 4-15 2 8h6"/></svg>
+      <h2>Gaya Hidup</h2>
+    </div>
+    <div class="grid">
+      <div class="field"><label>Merokok</label>
+        <select id="smoke"><option value="no">Tidak</option><option value="yes">Ya</option></select></div>
+      <div class="field"><label>Monitor kalori harian</label>
+        <select id="scc"><option value="no">Tidak</option><option value="yes">Ya</option></select></div>
+      <div class="field"><label>Transportasi utama</label>
+        <select id="mtrans">
+          <option value="Public_Transportation">Transportasi Umum</option>
+          <option value="Automobile">Mobil</option>
+          <option value="Walking">Jalan Kaki</option>
+          <option value="Bike">Sepeda</option>
+          <option value="Motorbike">Motor</option>
+        </select></div>
+    </div>
+
+    <div class="section-divider">Frekuensi &amp; Durasi</div>
+    <div class="grid">
+      <div class="field"><label>Konsumsi air <span class="value-badge" id="ch2o-val">2</span></label>
+        <input type="range" id="ch2o" min="1" max="3" step="1" value="2" oninput="updateHint('ch2o')">
+        <div class="hint" id="ch2o-hint"></div></div>
+      <div class="field"><label>Aktivitas fisik <span class="value-badge" id="faf-val">1</span></label>
+        <input type="range" id="faf" min="0" max="3" step="1" value="1" oninput="updateHint('faf')">
+        <div class="hint" id="faf-hint"></div></div>
+      <div class="field"><label>Waktu gadget <span class="value-badge" id="tue-val">1</span></label>
+        <input type="range" id="tue" min="0" max="2" step="1" value="1" oninput="updateHint('tue')">
+        <div class="hint" id="tue-hint"></div></div>
+    </div>
+  </section>
+
+  <button class="btn" id="predictBtn" onclick="predict()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+    Prediksi Tingkat Obesitas
+  </button>
+  <div class="loading" id="loading"><span class="spinner"></span> Memproses prediksi&hellip;</div>
+
+  <!-- ===================== ERROR BANNER (cantik) ===================== -->
+  <div class="error-banner" id="errorBanner" role="alert">
+    <div class="error-inner">
+      <div class="error-header">
+        <div class="error-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+        </div>
+        <div class="error-title-wrap">
+          <p class="error-title" id="errorTitle">Prediksi Gagal</p>
+          <p class="error-subtitle" id="errorSubtitle">Terjadi kesalahan saat menghubungi server</p>
+        </div>
+      </div>
+      <div class="error-body">
+        <p class="error-message" id="errorMessage"></p>
+        <ul class="error-tips" id="errorTips"></ul>
+      </div>
+      <div class="error-dismiss">
+        <button onclick="dismissError()">Tutup &times;</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== HASIL ===================== -->
+  <section class="card result-card" id="result">
+    <div class="result-title">Hasil Prediksi Model</div>
+    <div class="result-value" id="pred-class">&mdash;</div>
+
+    <div class="gauge-wrap">
+      <div class="gauge-legend"><span>Berat Kurang</span><span>Obesitas Tingkat III</span></div>
+      <div id="resultGauge"></div>
+      <div class="gauge-keys">
+        <span><i class="marker model" style="position:static;">&#9660;</i> Prediksi model</span>
+        <span><i class="marker bmi" style="position:static;">&#9661;</i> BMI standar</span>
+      </div>
+    </div>
+
+    <div class="bmi-compare" id="bmiCompare"></div>
+
+    <div class="proba-title">Probabilitas Tiap Kelas</div>
+    <div id="proba-container"></div>
+
+    <!-- SARAN KESEHATAN -->
+    <div class="saran-section">
+      <div class="saran-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Saran Kesehatan
+      </div>
+      <div class="saran-grid" id="saran-container"></div>
+      <p class="disclaimer-saran">⚠️ <strong>Catatan:</strong> Saran ini bersifat informatif umum dan dihasilkan berdasarkan kategori prediksi model, <strong>bukan diagnosis medis</strong>. Konsultasikan ke dokter atau ahli gizi untuk penanganan yang tepat sesuai kondisi Anda.</p>
+    </div>
+  </section>
+
+  <footer>
+    Dataset: UCI &mdash; Estimation of Obesity Levels &middot; Model: LightGBM<br>
+    Alat ini dibuat untuk keperluan akademik (UAS Pembelajaran Mesin) dan <strong>bukan alat diagnosis medis</strong>.
+    Konsultasikan ke tenaga kesehatan untuk penilaian kondisi tubuh yang sebenarnya.
+  </footer>
+</div>
+
+<script>
+const SCALE = [
+  {key:"Insufficient_Weight",  short:"Kurang",        long:"Berat Kurang",                color:"var(--scale-1)"},
+  {key:"Normal_Weight",        short:"Normal",         long:"Berat Normal",                 color:"var(--scale-2)"},
+  {key:"Overweight_Level_I",   short:"Lebih I",        long:"Kelebihan Berat Tingkat I",    color:"var(--scale-3)"},
+  {key:"Overweight_Level_II",  short:"Lebih II",       long:"Kelebihan Berat Tingkat II",   color:"var(--scale-4)"},
+  {key:"Obesity_Type_I",       short:"Obesitas I",     long:"Obesitas Tingkat I",           color:"var(--scale-5)"},
+  {key:"Obesity_Type_II",      short:"Obesitas II",    long:"Obesitas Tingkat II",          color:"var(--scale-6)"},
+  {key:"Obesity_Type_III",     short:"Obesitas III",   long:"Obesitas Tingkat III",         color:"var(--scale-7)"}
+];
+
+// ── SARAN KESEHATAN per kategori ──────────────────────────────────────────
+const SARAN = {
+  Insufficient_Weight: [
+    { type:"danger",   emoji:"⚡", label:"Asupan Kalori",     desc:"Berat badan Anda berada di bawah ideal. Tingkatkan asupan kalori harian dengan makanan bergizi tinggi seperti kacang-kacangan, alpukat, nasi merah, telur, dan ikan." },
+    { type:"warning",  emoji:"🥛", label:"Protein & Nutrisi", desc:"Penuhi kebutuhan protein 1–1.2 gram per kg berat badan untuk mendukung pertumbuhan dan pemeliharaan massa otot." },
+    { type:"positive", emoji:"🏃", label:"Olahraga Ringan",   desc:"Lakukan latihan kekuatan (strength training) ringan 2–3x seminggu untuk membangun massa otot secara sehat." },
+    { type:"danger",   emoji:"🏥", label:"Konsultasi Dokter", desc:"Berat badan kurang yang berkepanjangan dapat meningkatkan risiko osteoporosis dan gangguan imun. Pertimbangkan konsultasi ke dokter atau ahli gizi." }
+  ],
+  Normal_Weight: [
+    { type:"positive", emoji:"✅", label:"Berat Badan Ideal",  desc:"Selamat! Berat badan Anda berada dalam kisaran normal dan sehat. Pertahankan pola makan dan gaya hidup aktif yang sudah Anda jalani." },
+    { type:"positive", emoji:"🥗", label:"Pola Makan Seimbang", desc:"Teruskan konsumsi sayuran, buah, protein tanpa lemak, dan karbohidrat kompleks setiap hari untuk menjaga keseimbangan nutrisi." },
+    { type:"positive", emoji:"🏃", label:"Aktivitas Fisik",   desc:"Pertahankan rutinitas olahraga minimal 150 menit intensitas sedang per minggu (seperti jalan cepat, bersepeda, atau berenang)." },
+    { type:"warning",  emoji:"📊", label:"Pantau Secara Rutin", desc:"Lakukan pemeriksaan BMI dan kesehatan rutin tiap 6 bulan agar kondisi tubuh tetap terpantau dengan baik." }
+  ],
+  Overweight_Level_I: [
+    { type:"warning",  emoji:"🍽️", label:"Kurangi Porsi Makan", desc:"Mulai perhatikan porsi makan. Gunakan piring lebih kecil dan hindari makan larut malam. Target defisit kalori ringan 250–300 kkal/hari sudah cukup efektif." },
+    { type:"warning",  emoji:"🥦", label:"Perbanyak Sayur",    desc:"Isi setengah piring dengan sayuran saat makan besar. Serat dari sayuran membantu rasa kenyang lebih lama dan mengontrol gula darah." },
+    { type:"positive", emoji:"🚶", label:"Tingkatkan Aktivitas", desc:"Tambahkan 30 menit jalan kaki atau aktivitas ringan setiap hari. Langkah kecil ini cukup berarti jika dilakukan konsisten." },
+    { type:"warning",  emoji:"🧃", label:"Batasi Minuman Manis", desc:"Kurangi minuman bersoda, jus kemasan, dan kopi manis. Ganti dengan air putih minimal 2 liter per hari." }
+  ],
+  Overweight_Level_II: [
+    { type:"danger",   emoji:"⚠️", label:"Perhatian Lebih",   desc:"Kelebihan berat badan tingkat II meningkatkan risiko diabetes tipe 2, hipertensi, dan gangguan jantung. Perubahan gaya hidup perlu lebih serius." },
+    { type:"danger",   emoji:"🍟", label:"Hindari Makanan Olahan", desc:"Kurangi drastis makanan cepat saji, gorengan, dan makanan tinggi gula. Fokus pada makanan utuh (whole food) yang minim proses." },
+    { type:"warning",  emoji:"🏋️", label:"Olahraga Terstruktur", desc:"Jadwalkan olahraga minimal 3–4x seminggu selama 45–60 menit. Kombinasikan kardio (jogging, renang) dan latihan kekuatan." },
+    { type:"danger",   emoji:"🏥", label:"Evaluasi Medis",    desc:"Konsultasikan kondisi Anda ke dokter untuk evaluasi faktor risiko metabolik (kolesterol, gula darah) dan mendapatkan rencana penurunan berat yang aman." }
+  ],
+  Obesity_Type_I: [
+    { type:"danger",   emoji:"🚨", label:"Tindakan Segera",   desc:"Obesitas Tingkat I membutuhkan perubahan gaya hidup yang konsisten dan terencana. Risiko penyakit kardiovaskular dan diabetes meningkat signifikan pada kondisi ini." },
+    { type:"danger",   emoji:"📋", label:"Program Diet Terstruktur", desc:"Susun rencana makan bersama ahli gizi, dengan target penurunan berat 0.5–1 kg per minggu secara bertahap dan aman." },
+    { type:"warning",  emoji:"🏊", label:"Olahraga Rendah Beban", desc:"Mulai dengan olahraga rendah beban sendi seperti renang atau bersepeda untuk mengurangi tekanan pada lutut dan punggung." },
+    { type:"danger",   emoji:"🩺", label:"Pemantauan Kesehatan", desc:"Lakukan cek kesehatan rutin: tekanan darah, gula darah puasa, dan profil lipid setidaknya setiap 3 bulan sekali bersama dokter Anda." }
+  ],
+  Obesity_Type_II: [
+    { type:"danger",   emoji:"🚨", label:"Kondisi Serius",    desc:"Obesitas Tingkat II memerlukan penanganan medis. Risiko penyakit jantung koroner, sleep apnea, dan komplikasi metabolik lainnya sangat meningkat." },
+    { type:"danger",   emoji:"🏥", label:"Konsultasi Spesialis", desc:"Segera konsultasikan ke dokter spesialis gizi atau endokrinologi untuk evaluasi menyeluruh dan penentuan intervensi yang tepat (termasuk kemungkinan terapi medis)." },
+    { type:"warning",  emoji:"🧘", label:"Manajemen Stres",   desc:"Stres dan kurang tidur dapat memperburuk penambahan berat badan. Praktikkan teknik relaksasi seperti meditasi, pernapasan dalam, atau yoga ringan." },
+    { type:"danger",   emoji:"👨‍👩‍👧", label:"Dukungan Keluarga", desc:"Libatkan keluarga atau kelompok pendukung dalam perjalanan perubahan gaya hidup Anda. Dukungan sosial terbukti meningkatkan keberhasilan program penurunan berat badan." }
+  ],
+  Obesity_Type_III: [
+    { type:"danger",   emoji:"🆘", label:"Perlu Perhatian Medis Segera", desc:"Obesitas Tingkat III (morbid obesity) adalah kondisi medis serius. Risiko kematian dini, gagal jantung, stroke, dan diabetes sangat tinggi. Penanganan medis adalah prioritas utama." },
+    { type:"danger",   emoji:"🏥", label:"Tim Medis Multidisiplin", desc:"Penanganan terbaik melibatkan tim dokter: spesialis gizi, kardiologi, dan mungkin konsultasi bariatrik untuk opsi intervensi bedah jika diindikasikan secara medis." },
+    { type:"danger",   emoji:"🛌", label:"Periksa Komplikasi", desc:"Lakukan evaluasi menyeluruh terhadap kemungkinan komplikasi yang mungkin sudah ada: apnea tidur, hipertensi, diabetes, dan gangguan sendi. Jangan tunda." },
+    { type:"warning",  emoji:"💪", label:"Perubahan Bertahap", desc:"Bahkan penurunan berat 5–10% dari berat awal sudah memberi manfaat kesehatan yang signifikan. Fokus pada langkah kecil yang konsisten bersama pendampingan profesional." }
+  ]
+};
+
+const HINTS = {
+  fcvc: {1:"Jarang atau tidak pernah makan sayur", 2:"Kadang-kadang makan sayur", 3:"Selalu makan sayur di setiap makan"},
+  ncp:  {1:"1\u20132 kali makan besar / hari", 2:"3 kali makan besar / hari", 3:"Lebih dari 3 kali makan besar / hari", 4:"Sangat sering, hampir tanpa jadwal tetap"},
+  ch2o: {1:"Kurang dari 1 liter / hari", 2:"1\u20132 liter / hari", 3:"Lebih dari 2 liter / hari"},
+  faf:  {0:"Tidak pernah berolahraga", 1:"1\u20132 hari / minggu", 2:"2\u20134 hari / minggu", 3:"4\u20135 hari / minggu"},
+  tue:  {0:"0\u20132 jam / hari", 1:"3\u20135 jam / hari", 2:"Lebih dari 5 jam / hari"}
+};
+
+// Field validation rules
+const FIELD_RULES = {
+  age:    { min:10,  max:100, label:"Usia",  unit:"tahun",  msg:"Usia harus antara 10–100 tahun." },
+  height: { min:1.0, max:2.5, label:"Tinggi", unit:"meter", msg:"Tinggi harus antara 1.0–2.5 meter." },
+  weight: { min:10,  max:400, label:"Berat",  unit:"kg",    msg:"Berat harus antara 10–400 kg. Jika melebihi 400 kg, silakan konsultasikan langsung ke dokter." }
+};
+
+function validateField(id) {
+  const rule = FIELD_RULES[id];
+  if (!rule) return true;
+  const el = document.getElementById(id);
+  const errEl = document.getElementById(id + "-err");
+  const val = parseFloat(el.value);
+  const isValid = !isNaN(val) && val >= rule.min && val <= rule.max;
+  el.classList.toggle("invalid", !isValid);
+  if (errEl) errEl.classList.toggle("show", !isValid);
+  return isValid;
+}
+
+function validateAll() {
+  return ["age","height","weight"].map(id => validateField(id)).every(Boolean);
+}
+
+function updateHint(id){
+  const val = document.getElementById(id).value;
+  document.getElementById(id + "-val").textContent = val;
+  document.getElementById(id + "-hint").textContent = HINTS[id][val] || "";
+}
+["fcvc","ncp","ch2o","faf","tue"].forEach(updateHint);
+
+function bmiCategoryIndex(bmi){
+  if (bmi < 18.5) return 0;
+  if (bmi < 25)   return 1;
+  if (bmi < 30)   return 2;
+  if (bmi < 35)   return 3;
+  if (bmi < 40)   return 4;
+  if (bmi < 45)   return 5;
+  return 6;
+}
+
+function renderGauge(containerId, markers){
+  const segHtml = SCALE.map(s => `<div class="seg" style="background:${s.color}"><span>${s.short}</span></div>`).join("");
+  const markerHtml = markers.map(m => {
+    const pos = ((m.index + 0.5) / 7 * 100).toFixed(2);
+    const glyph = m.type === "model" ? "&#9660;" : "&#9661;";
+    return `<div class="marker ${m.type}" style="left:${pos}%">${glyph}</div>`;
+  }).join("");
+  document.getElementById(containerId).innerHTML =
+    `<div class="gauge"><div class="gauge-track">${segHtml}</div>${markerHtml}</div>`;
+}
+
+function updateBmiPreview(){
+  const h = parseFloat(document.getElementById("height").value);
+  const w = parseFloat(document.getElementById("weight").value);
+  if (!h || !w || h <= 0 || h < 1.0 || h > 2.5 || w < 10 || w > 400){
+    document.getElementById("bmiPreview").style.display = "none"; return;
+  }
+  const bmi = w / (h * h);
+  const idx = bmiCategoryIndex(bmi);
+  document.getElementById("bmiPreview").style.display = "block";
+  document.getElementById("bmiValue").textContent = bmi.toFixed(1);
+  document.getElementById("bmiLabel").textContent = SCALE[idx].long;
+  renderGauge("bmiGauge", [{index: idx, type: "bmi"}]);
+}
+updateBmiPreview();
+
+// Render saran kesehatan
+function renderSaran(predKey) {
+  const saranList = SARAN[predKey] || [];
+  const container = document.getElementById("saran-container");
+  container.innerHTML = saranList.map(s => `
+    <div class="saran-item ${s.type}">
+      <span class="saran-emoji">${s.emoji}</span>
+      <div class="saran-text">
+        <div class="saran-label">${s.label}</div>
+        <div class="saran-desc">${s.desc}</div>
+      </div>
+    </div>
+  `).join("");
+}
+
+// Show structured error
+function showError(title, subtitle, message, tips) {
+  document.getElementById("errorTitle").textContent = title || "Prediksi Gagal";
+  document.getElementById("errorSubtitle").textContent = subtitle || "Terjadi kesalahan";
+  document.getElementById("errorMessage").textContent = message || "";
+  const tipsEl = document.getElementById("errorTips");
+  tipsEl.innerHTML = (tips || []).map(t => `<li>${t}</li>`).join("");
+  const banner = document.getElementById("errorBanner");
+  banner.classList.add("show");
+  banner.scrollIntoView({behavior:"smooth", block:"center"});
+}
+
+function dismissError() {
+  document.getElementById("errorBanner").classList.remove("show");
+}
+
+function parseErrorInfo(statusCode, rawMessage) {
+  if (statusCode === 422) {
+    return {
+      title: "Data Tidak Valid",
+      subtitle: "Input yang Anda masukkan tidak sesuai format",
+      message: "Server menolak permintaan karena ada nilai yang di luar batas yang diizinkan.",
+      tips: [
+        "Periksa kembali isian Usia (10–100 tahun)",
+        "Periksa kembali isian Tinggi (1.0–2.5 meter)",
+        "Periksa kembali isian Berat (10–400 kg)"
+      ]
+    };
+  } else if (statusCode === 500) {
+    return {
+      title: "Kesalahan Server",
+      subtitle: "Model gagal memproses data",
+      message: rawMessage || "Terjadi kesalahan internal pada server saat memproses prediksi.",
+      tips: [
+        "Coba refresh halaman dan isi ulang formulir",
+        "Pastikan semua kolom sudah terisi dengan benar",
+        "Jika masalah berlanjut, periksa apakah server masih berjalan"
+      ]
+    };
+  } else if (!statusCode) {
+    return {
+      title: "Tidak Dapat Terhubung",
+      subtitle: "Server tidak merespons",
+      message: rawMessage || "Gagal menghubungi server prediksi.",
+      tips: [
+        "Pastikan server FastAPI sudah berjalan",
+        "Periksa koneksi internet Anda",
+        "Coba muat ulang halaman beberapa saat lagi"
+      ]
+    };
+  }
+  return {
+    title: `Gagal (Status ${statusCode})`,
+    subtitle: "Server mengembalikan respons yang tidak terduga",
+    message: rawMessage || "Terjadi kesalahan yang tidak diketahui.",
+    tips: ["Coba klik tombol prediksi sekali lagi", "Jika masalah berlanjut, hubungi pengembang"]
+  };
+}
+
+// Ping backend for active model info
+fetch("/health").then(r => r.json()).then(d => {
+  document.getElementById("model-badge").style.display = "flex";
+  document.getElementById("model-badge-text").textContent = "Model aktif: " + d.model;
+}).catch(() => {});
+
+async function predict() {
+  // Validate before sending
+  if (!validateAll()) {
+    showError(
+      "Input Tidak Valid",
+      "Ada nilai yang perlu diperbaiki sebelum melanjutkan",
+      "Periksa kolom yang ditandai merah di atas dan pastikan semua nilai berada dalam batas yang diizinkan.",
+      ["Usia: 10–100 tahun", "Tinggi: 1.0–2.5 meter", "Berat: 10–400 kg"]
+    );
+    // Scroll to first invalid field
+    const firstInvalid = document.querySelector(".invalid");
+    if (firstInvalid) firstInvalid.scrollIntoView({behavior:"smooth", block:"center"});
+    return;
+  }
+
+  const body = {
+    Gender: document.getElementById("gender").value,
+    Age: +document.getElementById("age").value,
+    Height: +document.getElementById("height").value,
+    Weight: +document.getElementById("weight").value,
+    family_history_with_overweight: document.getElementById("family").value,
+    FAVC: document.getElementById("favc").value,
+    FCVC: +document.getElementById("fcvc").value,
+    NCP: +document.getElementById("ncp").value,
+    CAEC: document.getElementById("caec").value,
+    SMOKE: document.getElementById("smoke").value,
+    CH2O: +document.getElementById("ch2o").value,
+    SCC: document.getElementById("scc").value,
+    FAF: +document.getElementById("faf").value,
+    TUE: +document.getElementById("tue").value,
+    CALC: document.getElementById("calc").value,
+    MTRANS: document.getElementById("mtrans").value
+  };
+
+  const btn = document.getElementById("predictBtn");
+  dismissError();
+  btn.disabled = true;
+  document.getElementById("loading").classList.add("show");
+  document.getElementById("result").classList.remove("show");
+
+  try {
+    const res = await fetch("/predict", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify(body)
+    });
+
+    if (!res.ok) {
+      let rawMsg = `Server merespons dengan status ${res.status}.`;
+      try {
+        const errData = await res.json();
+        if (errData.detail) {
+          rawMsg = typeof errData.detail === "string" ? errData.detail : JSON.stringify(errData.detail);
+        }
+      } catch (_) {}
+      const errInfo = parseErrorInfo(res.status, rawMsg);
+      showError(errInfo.title, errInfo.subtitle, errInfo.message, errInfo.tips);
+      return;
+    }
+
+    const data = await res.json();
+
+    const modelIdx = SCALE.findIndex(s => s.key === data.prediction);
+    const bmi = body.Weight / (body.Height * body.Height);
+    const bmiIdx = bmiCategoryIndex(bmi);
+
+    document.getElementById("pred-class").textContent = SCALE[modelIdx] ? SCALE[modelIdx].long : data.prediction;
+    renderGauge("resultGauge", [{index: bmiIdx, type: "bmi"}, {index: modelIdx, type: "model"}]);
+
+    const compareEl = document.getElementById("bmiCompare");
+    if (modelIdx === bmiIdx) {
+      compareEl.textContent = `Sesuai dengan kategori BMI standar (BMI ${bmi.toFixed(1)} kg/m\u00b2 \u2192 ${SCALE[bmiIdx].long}).`;
+    } else if (modelIdx > bmiIdx) {
+      compareEl.textContent = `Lebih tinggi dari kategori BMI standar (BMI ${bmi.toFixed(1)} kg/m\u00b2 \u2192 ${SCALE[bmiIdx].long}). Kemungkinan dipengaruhi kebiasaan makan dan gaya hidup yang Anda isi.`;
+    } else {
+      compareEl.textContent = `Lebih rendah dari kategori BMI standar (BMI ${bmi.toFixed(1)} kg/m\u00b2 \u2192 ${SCALE[bmiIdx].long}). Kemungkinan dipengaruhi kebiasaan makan dan gaya hidup yang Anda isi.`;
+    }
+
+    const container = document.getElementById("proba-container");
+    container.innerHTML = "";
+    if (data.probabilities) {
+      Object.entries(data.probabilities)
+        .sort((a,b) => b[1]-a[1])
+        .forEach(([cls, prob]) => {
+          const pct = (prob * 100).toFixed(1);
+          const longName = (SCALE.find(s => s.key === cls) || {}).long || cls;
+          container.innerHTML += `
+            <div class="bar-row">
+              <div class="bar-label"><span>${longName}</span><span class="pct">${pct}%</span></div>
+              <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
+            </div>`;
+        });
+    }
+
+    // Render saran kesehatan sesuai prediksi
+    renderSaran(data.prediction);
+
+    const resultEl = document.getElementById("result");
+    resultEl.style.display = "block";
+    requestAnimationFrame(() => resultEl.classList.add("show"));
+    resultEl.scrollIntoView({behavior:"smooth", block:"start"});
+  } catch(e) {
+    const errInfo = parseErrorInfo(null, e.message);
+    showError(errInfo.title, errInfo.subtitle, errInfo.message, errInfo.tips);
+  } finally {
+    btn.disabled = false;
+    document.getElementById("loading").classList.remove("show");
+  }
+}
+</script>
+</body>
+</html>
